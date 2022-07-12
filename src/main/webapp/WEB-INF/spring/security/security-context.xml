@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+	<!--
+		auto-config='true'
+			기본 로그인페이지/ HTTP 기본인증 / 로그아웃기능사용을 위한 설정
+		use-expressions="true"
+			<intercept-url>의 access 속성에 표현식을 사용한다는 의미
+			"false"면 access="USER"로 값을 사용
+			"true" 면 access="hasRole('ROLE_USER')" 사용 ROLE_는 생략 가능
+	-->
+	<security:http auto-config="true" use-expressions="true">
+		<!-- 타도메인에서 iframe 하면 빈화면 / iframe을 활용한 디도스공격 방지 -->
+	    <security:headers>
+			<security:frame-options disabled="true"/>
+	    </security:headers>
+		<!--
+			intercept-url
+				가장 특수한 경우를 위쪽에 놓고 일반적인 경우를 아래쪽에 설정한다
+		-->
+	    <security:intercept-url pattern="/**/Write.do" access="hasRole('USER')"/>
+	    <security:intercept-url pattern="/**/Edit.do" access="hasRole('USER')"/>
+	    <security:intercept-url pattern="/**/Delete.do" access="hasRole('USER')"/>
+	    <security:intercept-url pattern="/mypage/**" access="hasRole('USER')"/>
+	    <security:intercept-url pattern="/**" access="permitAll" />
+	    <!-- 
+			[폼 기반 로그인 설정]
+	
+			<security:form-login/> 요소로  로그인 설정:	  
+				login-page
+					로그인 페이지로 보내는 컨트롤러의 URL 
+				default-target-url
+					로그인 한 후에 보여질 페이지 URL지정 
+				authentication-failure-url
+					로그인 실패시 보여질 페이지 URL지정 
+					기본값은 /login?error
+				login-processing-url
+					로그인을 처리하는 컨트롤러의 URL
+				username-parameter
+					로그인 폼에 아이디 입력 필드에 지정한 name
+				password-parameter
+					로그인 폼에 비밀번호 입력 필드에 지정한 name 
+	    -->
+		<security:form-login 
+			login-page="/auth/Login.do"
+			default-target-url="/auth/Login.do" 
+			authentication-failure-url="/auth/Login.do?NotMember=error"
+			login-processing-url="/auth/LoginProcess.do"
+			username-parameter="id"
+			password-parameter="pwd"/>
+	    <!--
+	   		<security:logout/> 요소로 로그아웃 설정:
+				logout-url
+					로그아웃 페이지로 보내는 컨트롤러의 URL
+				delete-cookies
+					쿠키 삭제 여부
+				invalidate-session
+					세션 제거 여부(디폴트 true)
+		-->
+		<security:logout
+			logout-url="/auth/Logout.do"
+			delete-cookies="true"
+			invalidate-session="true"/>
+	
+		<!--
+			[중복 로그인 방지용]
+	            max-sessions="1"
+					최대 허용 가능 중복 세션 수
+	            invalid-session-url
+					세션이 끊어졌을 때 이동할 URL
+	            expired-url
+					세션 유효시간이 경과 한 경우
+		-->
+		<security:session-management invalid-session-url="/auth/Login.do">
+			<security:concurrency-control max-sessions="1" expired-url="/auth/Login.do" />
+	    </security:session-management>
+
+		<!--
+			[CSRF공격 막기]
+				1. 모든 폼 입력에 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/> 추가
+				2. 폼의 요청을 POST방식으로 구현
+		-->
+		<security:csrf disabled="false"/>
+	</security:http>
+	
+	
+	<security:authentication-manager>
+	    <security:authentication-provider>
+	        <!--
+				security:jdbc-user-service
+					data-source-ref
+						데이터베이스 연결을 나타내는 dataSource
+	                role-prefix
+						"ROLE_" 과 같은 테이블에 적힌 롤 앞에 붙는 prefix를 지정 
+						디폴트 = "ROLE_"
+					users-by-username-query
+						아이디로 사용자 정보를 가져오는 쿼리 설정
+						> username, password, enabled
+					authorities-by-username-query
+						아이디로 권한 정보를 가져오는 쿼리 설정
+						> username, authority
+	        -->
+	        <security:jdbc-user-service 
+				data-source-ref="dataSource"			        
+				users-by-username-query="
+					SELECT m.id as username, m.pwd as password, enabled 
+						FROM member m JOIN AUTHORITY_SECURITY AU ON m.id=au.id
+							WHERE m.id=?"
+				authorities-by-username-query="
+					SELECT m.id as username, authority
+						FROM member m JOIN AUTHORITY_SECURITY AU ON m.id=au.id
+							WHERE m.id=?"
+			/>
+		</security:authentication-provider>
+	</security:authentication-manager>
+</beans>

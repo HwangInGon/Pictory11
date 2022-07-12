@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<!--
+	 1) Mapper들에서 사용할 DTO들의 alias 설정
+	--> 
+	<typeAliases>
+<!--
+  		<typeAlias type="com.pictory.springapp.onememo.dto.OneMemoDTO" alias="memoDto"/>
+		<typeAlias type="com.pictory.springapp.onememo.dto.LineCommentDTO" alias="commentDto"/>   
+-->
+	</typeAliases>
+
+	<!-- 
+	 2) mapper file 위치정보 설정 !!!!!!!!!!!!!!!
+	-->
+	<mappers>
+		<mapper resource="mybatis/mapper/member.xml"/>
+		<mapper resource="mybatis/mapper/article.xml"/>
+		<mapper resource="mybatis/mapper/story.xml"/>
+		<mapper resource="mybatis/mapper/comment.xml"/>
+		<mapper resource="mybatis/mapper/payment.xml"/>
+	</mappers>
+</configuration>

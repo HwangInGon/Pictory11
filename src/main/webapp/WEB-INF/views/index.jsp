@@ -13,6 +13,7 @@
 	<h2>메인화면</h2>
 	<h2>메인화면</h2>
 	<h2>메인화면</h2>
+	<h2>테스트</h2>
 </div><!-- container -->
 
 <jsp:include page="/WEB-INF/views/Footer.jsp"  />

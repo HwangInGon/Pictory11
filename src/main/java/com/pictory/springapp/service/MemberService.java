@@ -1,22 +1,20 @@
 package com.pictory.springapp.service;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Map;
 
-@Service("memberService")
-public class MemberService {
+public interface MemberService<T> {
+	//로그인 용]
+	boolean isLogin(Map map);
+	//목록용]
+	List<T> selectList(Map map);
+	//상세보기용]
+	T selectOne(Map map);
+	//입력/수정/삭제용]
+	int insert(Map map);
+	int delete(Map map);
+	int update(Map map);
+	
+	
 
-	public void bookmark(String[] noArray) {
-		for(String no : noArray) {
-			System.out.println(no + "를 북마크했습니다.");
-		}
-		return;
-	}
-	
-	public void revokeBookmark(String[] noArray) {
-		for(String no : noArray) {
-			System.out.println(no + "를 북마크 취소했습니다.");
-		}
-		return;
-	}
-	
 }
